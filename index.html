@@ -2,9 +2,120 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❄️</text></svg>" />
+    <style>
+      .corner-image {
+        position: fixed;
+        z-index: 50;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
+      .corner-image img {
+        border-radius: 8px;
+        transition: transform 0.2s ease;
+      }
+      .corner-image img:hover {
+        transform: scale(1.05);
+      }
+      .left-image {
+        left: 20px;
+      }
+      .left-image img {
+        width: 150px;
+        height: auto;
+      }
+      .right-image {
+        right: 20px;
+      }
+      .right-image img {
+        width: 100px;
+        height: auto;
+      }
+      .attribution {
+        position: fixed;
+        left: 20px;
+        font-size: 10px;
+        color: #86868B;
+        font-family: system-ui, -apple-system, sans-serif;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
+      @media (min-width: 769px) {
+        .corner-image {
+          top: 20px;
+        }
+        .attribution {
+          top: 80px;
+        }
+      }
+      @media (max-width: 768px) {
+        .corner-image {
+          bottom: 20px;
+        }
+        .attribution {
+          bottom: 80px;
+        }
+        .left-image img {
+          width: 120px;
+        }
+        .right-image img {
+          width: 80px;
+        }
+      }
+    </style>
   </head>
   <body class="antialiased">
+    <a href="https://snow-forecast.com" target="_blank" rel="noopener noreferrer" class="corner-image left-image">
+      <img src="/snow-forecast.jpg" alt="Snow Forecast" />
+    </a>
+    <div class="attribution">data embed by snow-forecast.com</div>
+    <a href="https://github.com/TheExploration/skibc" target="_blank" rel="noopener noreferrer" class="corner-image right-image">
+      <img src="https://opengraph.githubassets.com/1/github-mark" alt="GitHub Repository" />
+    </a>
+    <script>
+      let lastScrollY = window.scrollY;
+      let ticking = false;
+
+      function updateVisibility() {
+        const cornerImages = document.querySelectorAll('.corner-image');
+        const attribution = document.querySelector('.attribution');
+        
+        // Calculate opacity based on scroll position
+        // Start fading at 50px and complete fade by 150px
+        const fadeStart = 50;
+        const fadeEnd = 150;
+        const scrollPos = window.scrollY;
+        
+        let opacity = 1;
+        if (scrollPos > fadeStart) {
+          opacity = Math.max(0, 1 - (scrollPos - fadeStart) / (fadeEnd - fadeStart));
+        }
+        
+        // Apply opacity to elements
+        cornerImages.forEach(image => {
+          image.style.opacity = opacity;
+          image.style.pointerEvents = opacity === 0 ? 'none' : 'auto';
+        });
+        
+        attribution.style.opacity = opacity;
+        
+        ticking = false;
+      }
+
+      window.addEventListener('scroll', () => {
+        lastScrollY = window.scrollY;
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            updateVisibility();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+
+      // Initial visibility check
+      updateVisibility();
+    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

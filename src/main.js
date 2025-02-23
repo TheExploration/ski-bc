@@ -1,9 +1,55 @@
 import './style.css';
-import { scrapeWeather } from './weather.js';
+import { fetchAllData, processResortData } from './weather.js';
 import { createResortCard } from './templates.js';
 import { createDefaultCard } from './defaultLayout.js';
 
-const skiResorts = ["Apex", "Mt-Baldy-Ski-Area", "Big-White", "CrystalResort", "Cypress-Mountain", "Fairmont-Hot-Springs", "Fernie", "Grouse-Mountain", "Harper-Mountain", "Ski-Smithers", "Kicking-Horse", "Kimberley", "Manning-Park-Resort", "MountCain", "Mount-Timothy-Ski-Area", "Mount-Washington", "Mount-Seymour", "Murray-Ridge", "Panorama", "PowderKing", "Purden", "Red-Mountain", "Revelstoke", "Salmo", "HemlockResort", "ShamesMountain", "Silver-Star", "Summit-Lake-Ski-and-Snowboard-Area", "Sun-Peaks", "Tabor-Mountain", "Troll-Resort", "Whistler-Blackcomb", "Whitewater", "Lake-Louise", "Sunshine", "Banff-Norquay", "Marmot-Basin", "Nakiska", "Castle-Mountain-Resort", "Fortress-Mountain", "Pass-Powderkeg", "Mount-Baker", "Crystal-Mountain"];
+const resortAliases = {
+  // British Columbia
+  "Apex Mountain": "Apex",
+  "Mt Baldy": "Mt-Baldy-Ski-Area",
+  "Big White": "Big-White",
+  "Cypress Mountain": "Cypress-Mountain",
+  "Fairmont Hot Springs": "Fairmont-Hot-Springs",
+  "Fernie Alpine": "Fernie",
+  "Grouse Mountain": "Grouse-Mountain",
+  "Harper Mountain": "Harper-Mountain",
+  "Hudson Bay Mountain": "Ski-Smithers",
+  "Kicking Horse": "Kicking-Horse",
+  "Kimberley Alpine": "Kimberley",
+  "Manning Park": "Manning-Park-Resort",
+  "Mount Cain": "MountCain",
+  "Mount Timothy": "Mount-Timothy-Ski-Area",
+  "Mount Washington": "Mount-Washington",
+  "Mount Seymour": "Mount-Seymour",
+  "Murray Ridge": "Murray-Ridge",
+  "Panorama Mountain": "Panorama",
+  "Powder King": "PowderKing",
+  "Red Mountain": "Red-Mountain",
+  "Revelstoke Mountain": "Revelstoke",
+  "Sasquatch Mountain": "HemlockResort",
+  "Shames Mountain": "ShamesMountain",
+  "SilverStar Mountain": "Silver-Star",
+  "Summit Lake Ski Area": "Summit-Lake-Ski-and-Snowboard-Area",
+  "Sun Peaks": "Sun-Peaks",
+  "Troll Resort": "Troll-Resort",
+  "Whistler Blackcomb": "Whistler-Blackcomb",
+  "Whitewater": "Whitewater",
+  // Alberta
+  "Lake Louise": "Lake-Louise",
+  "Sunshine Village": "Sunshine",
+  "Mt Norquay": "Banff-Norquay",
+  "Marmot Basin": "Marmot-Basin",
+  "Nakiska": "Nakiska",
+  "Castle Mountain": "Castle-Mountain-Resort",
+  "Pass Powderkeg": "Pass-Powderkeg",
+  // Washington State
+  "Mt Baker": "Mount-Baker",
+  "Crystal Mountain WA": "Crystal-Mountain",
+  "Stevens Pass" : "Stevens-Pass"
+};
+
+// Get API keys (resort IDs) from the aliases object
+const skiResorts = Object.values(resortAliases);
 
 // Get selected resorts from local storage or use defaults
 const defaultSelectedResorts = ["Cypress-Mountain", "Mount-Seymour", "Grouse-Mountain"];
@@ -25,15 +71,19 @@ const defaultSortDay = 0;
 const savedSortDay = localStorage.getItem('selectedSortDay');
 const initialSortDay = savedSortDay ? parseInt(savedSortDay) : defaultSortDay;
 
-// Cache for resort data
-const resortCache = new Map();
+// Store all weather data
+let allWeatherData = null;
 
 // Loading controller
 let loadingController = null;
 
-// Background loading queue
-let backgroundQueue = [];
-let isBackgroundLoading = false;
+// Get display order from local storage or use default
+let isReversed = localStorage.getItem('reverseOrder') === 'true';
+
+// Helper function to get display name from API ID
+function getDisplayName(apiId) {
+  return Object.entries(resortAliases).find(([name, id]) => id === apiId)?.[0] || apiId.replace(/-/g, ' ');
+}
 
 // Create and mount the app
 function createApp() {
@@ -67,6 +117,8 @@ function createApp() {
       <header class="text-center mb-12">
         <h1 class="text-4xl font-bold mb-2 apple-rainbow-text">Snow Forecast BC</h1>
         <p class="text-gray-600 font-semibold">The best forecast website for BC ski/board!</p>
+        <p class="text-xs text-gray-400 font-normal">* forecast is conservative. tends to underestimate interior mountains</p>
+
       </header>
       
       <div class="max-w-7xl mx-auto">
@@ -103,7 +155,7 @@ function createApp() {
                     ${skiResorts.map(resort => `
                       <label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
                         <input type="checkbox" value="${resort}" class="resort-checkbox h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" ${initialSelectedResorts.includes(resort) ? 'checked' : ''}>
-                        <span class="ml-2 text-sm">${resort.replace(/-/g, ' ')}</span>
+                        <span class="ml-2 text-sm">${getDisplayName(resort)}</span>
                       </label>
                     `).join('')}
                   </div>
@@ -138,6 +190,13 @@ function createApp() {
           </div>
 
           <div class="flex items-center gap-4">
+            <button
+              id="reverse-order"
+              class="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 text-sm font-medium text-gray-700"
+            >
+              ${isReversed ? '↑ Reverse Order' : '↓ Normal Order'}
+            </button>
+
             <div class="relative">
               <button id="sort-button" class="w-full md:w-48 bg-white border border-gray-300 rounded-lg px-4 py-2 text-left flex items-center justify-between shadow-sm hover:bg-gray-50">
                 <span id="sort-text" class="block truncate capitalize">Sort by Temperature</span>
@@ -180,10 +239,12 @@ function createApp() {
 
 function sortResorts(resorts, sortBy) {
   const selectedDay = parseInt(localStorage.getItem('selectedSortDay') || '0');
+  const selectedElevation = localStorage.getItem('selectedElevation') || 'bot';
+  const elevation = selectedElevation === 'bot' ? 'botData' : selectedElevation === 'mid' ? 'midData' : 'topData';
   
-  return [...resorts].sort((a, b) => {
-    const resortDataA = resortCache.get(`${a}-${localStorage.getItem('selectedElevation') || 'bot'}`);
-    const resortDataB = resortCache.get(`${b}-${localStorage.getItem('selectedElevation') || 'bot'}`);
+  let sortedResorts = [...resorts].sort((a, b) => {
+    const resortDataA = processResortData(allWeatherData, a, elevation);
+    const resortDataB = processResortData(allWeatherData, b, elevation);
     
     if (!resortDataA || !resortDataB) return 0;
 
@@ -210,7 +271,11 @@ function sortResorts(resorts, sortBy) {
 
     const getPMWind = (day) => {
       const pmPeriod = day.periods.find(p => p.time === 'PM');
-      return pmPeriod ? parseFloat(pmPeriod.wind) || 0 : 0;
+      const nightPeriod = day.periods.find(p => p.time === 'Night');
+      
+      return pmPeriod !== undefined 
+        ? parseFloat(pmPeriod.wind) 
+        : (nightPeriod !== undefined ? parseFloat(nightPeriod.wind) : 0);
     };
 
     switch (sortBy) {
@@ -224,53 +289,35 @@ function sortResorts(resorts, sortBy) {
         return 0;
     }
   });
+
+  // Apply reverse order if enabled
+  if (isReversed) {
+    sortedResorts = sortedResorts.reverse();
+  }
+
+  return sortedResorts;
 }
 
-async function loadResort(resortName, isBackground = false) {
+async function loadResort(resortName) {
   try {
     const selectedElevation = localStorage.getItem('selectedElevation') || 'bot';
-    const cacheKey = `${resortName}-${selectedElevation}`;
+    const elevation = selectedElevation === 'bot' ? 'botData' : selectedElevation === 'mid' ? 'midData' : 'topData';
 
     // Check if loading was cancelled
     if (loadingController?.signal.aborted) {
       return false;
     }
 
-    // Check cache first
-    if (resortCache.has(cacheKey)) {
-      const cachedData = resortCache.get(cacheKey);
-      if (!isBackground) {
-        displayResort(resortName, cachedData);
-      }
-      return true;
-    }
-
-    const url = `https://www.snow-forecast.com/resorts/${resortName}/6day/${selectedElevation}`;
-    const resortData = await scrapeWeather(url, resortName);
-    
-    // Check if loading was cancelled before updating UI
-    if (loadingController?.signal.aborted) {
-      return false;
-    }
-
+    const resortData = processResortData(allWeatherData, resortName, elevation);
     if (resortData) {
-      // Store in cache
-      resortCache.set(cacheKey, resortData);
-      if (!isBackground) {
-        displayResort(resortName, resortData);
-      }
-      return true;
+      resortData.name = getDisplayName(resortName); // Use display name instead of API ID
+      displayResort(resortName, resortData);
     }
+    return true;
   } catch (err) {
     console.warn(`Failed to load ${resortName}:`, err);
-    if (!isBackground) {
-      // Only retry with delay if it's not a background load
-      await new Promise(resolve => setTimeout(resolve, 100));
-      return loadResort(resortName);
-    }
     return false;
   }
-  return false;
 }
 
 function displayResort(resortName, resortData) {
@@ -288,19 +335,6 @@ function displayResort(resortName, resortData) {
     forecastDiv.innerHTML = cardContent;
     forecastsContainer.appendChild(forecastDiv);
   }
-}
-
-async function processBackgroundQueue() {
-  if (isBackgroundLoading || backgroundQueue.length === 0) return;
-
-  isBackgroundLoading = true;
-  while (backgroundQueue.length > 0) {
-    const resort = backgroundQueue.shift();
-    await loadResort(resort, true);
-    // Small delay between background loads to prevent overwhelming the server
-    await new Promise(resolve => setTimeout(resolve, 50));
-  }
-  isBackgroundLoading = false;
 }
 
 async function loadSelectedResorts() {
@@ -327,20 +361,14 @@ async function loadSelectedResorts() {
     return;
   }
 
-  // Update background queue with non-selected resorts
-  backgroundQueue = skiResorts.filter(resort => !selectedResorts.includes(resort));
-  
   // Sort resorts if needed
   const sortBy = localStorage.getItem('selectedSort') || 'temperature';
   const sortedResorts = sortResorts(selectedResorts, sortBy);
 
-  // Load selected resorts in parallel
+  // Load selected resorts
   await Promise.all(
     sortedResorts.map(resort => loadResort(resort))
   );
-
-  // Start processing background queue
-  processBackgroundQueue();
 }
 
 function updateSortDayOptions() {
@@ -353,7 +381,9 @@ function updateSortDayOptions() {
   }
 
   const firstResort = selectedResorts[0];
-  const resortData = resortCache.get(`${firstResort}-${localStorage.getItem('selectedElevation') || 'bot'}`);
+  const selectedElevation = localStorage.getItem('selectedElevation') || 'bot';
+  const elevation = selectedElevation === 'bot' ? 'botData' : selectedElevation === 'mid' ? 'midData' : 'topData';
+  const resortData = processResortData(allWeatherData, firstResort, elevation);
   
   if (!resortData || !resortData.days.length) {
     sortDayOptions.innerHTML = '<div class="text-sm text-gray-500 px-4 py-2">Loading...</div>';
@@ -406,12 +436,21 @@ function filterResorts(searchTerm) {
   });
 
   // Update select all checkbox based on visible items
+  const selectAll = document.getElementById('select-all');
   selectAll.checked = visibleCount > 0 && visibleCount === visibleChecked;
   updateSelectAllText(selectAll.checked);
 }
 
-function initialize() {
+async function initialize() {
   createApp();
+  
+  // Fetch all weather data first
+  try {
+    allWeatherData = await fetchAllData();
+  } catch (error) {
+    console.error('Failed to fetch weather data:', error);
+    return;
+  }
   
   // Setup dropdowns functionality
   const dropdownButton = document.getElementById('dropdown-button');
@@ -425,6 +464,7 @@ function initialize() {
   const selectAll = document.getElementById('select-all');
   const searchInput = document.getElementById('resort-search');
   const moreInfo = document.getElementById('more-info');
+  const reverseOrder = document.getElementById('reverse-order');
   
   // Close dropdowns when clicking outside
   document.addEventListener('click', (e) => {
@@ -478,6 +518,14 @@ function initialize() {
     updateSortDayOptions();
   });
 
+  // Handle reverse order button
+  reverseOrder.addEventListener('click', () => {
+    isReversed = !isReversed;
+    localStorage.setItem('reverseOrder', isReversed);
+    reverseOrder.textContent = isReversed ? '↑ Reverse Order' : '↓ Normal Order';
+    loadSelectedResorts();
+  });
+
   // Handle sort selection
   document.querySelectorAll('.sort-option').forEach(option => {
     option.addEventListener('click', async () => {
@@ -504,7 +552,6 @@ function initialize() {
       
       // Save selection and reload forecasts
       localStorage.setItem('selectedElevation', value);
-      resortCache.clear(); // Clear cache when elevation changes
       await loadSelectedResorts();
     });
   });
@@ -513,9 +560,12 @@ function initialize() {
   moreInfo.addEventListener('change', () => {
     const selectedResorts = Array.from(document.querySelectorAll('.resort-checkbox:checked')).map(cb => cb.value);
     selectedResorts.forEach(resort => {
-      const cacheKey = `${resort}-${localStorage.getItem('selectedElevation') || 'bot'}`;
-      if (resortCache.has(cacheKey)) {
-        displayResort(resort, resortCache.get(cacheKey));
+      const selectedElevation = localStorage.getItem('selectedElevation') || 'bot';
+      const elevation = selectedElevation === 'bot' ? 'botData' : selectedElevation === 'mid' ? 'midData' : 'topData';
+      const resortData = processResortData(allWeatherData, resort, elevation);
+      if (resortData) {
+        resortData.name = getDisplayName(resort);
+        displayResort(resort, resortData);
       }
     });
   });
@@ -579,7 +629,7 @@ function initialize() {
   
   // Set initial select all text based on default selections
   const visibleCheckboxes = Array.from(document.querySelectorAll('.resort-checkbox'))
-    .filter(cb => cb.closest('label').style.display !== 'none');
+    .filter(cb => cb.closest('label').style.display !== ' none');
   const checkedCount = visibleCheckboxes.filter(cb => cb.checked).length;
   updateSelectAllText(checkedCount === visibleCheckboxes.length);
 
@@ -601,7 +651,8 @@ function initialize() {
   const savedSortDay = localStorage.getItem('selectedSortDay') || '0';
   const firstResort = initialSelectedResorts[0];
   if (firstResort) {
-    const resortData = resortCache.get(`${firstResort}-${initialElevation}`);
+    const elevation = savedElevation === 'bot' ? 'botData' : savedElevation === 'mid' ? 'midData' : 'topData';
+    const resortData = processResortData(allWeatherData, firstResort, elevation);
     if (resortData && resortData.days[savedSortDay]) {
       document.getElementById('sort-day-text').textContent = resortData.days[savedSortDay].name;
     }

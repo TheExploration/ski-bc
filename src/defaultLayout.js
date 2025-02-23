@@ -35,9 +35,9 @@ export function createDefaultCard(resort) {
                   </div>
                   <div class="bg-snow-blue rounded-xl p-3 backdrop-blur-sm">
                     <div class="flex items-center gap-2">
-                      <div class="text-2xl font-medium ${getTemperatureClass(dayStats.maxTemp)}">${dayStats.maxTemp}°C</div>
+                      <div class="text-2xl font-bold ${getTemperatureClass(dayStats.maxTemp)}">${dayStats.maxTemp}°C</div>
                       ${dayStats.snow > 0 ? `
-                        <div class="text-sm font-medium ${dayStats.snow >= 5 ? 'rainbow-text' : 'text-text-blue'}">
+                        <div class="text-sm font-bold ${dayStats.snow >= 20 ? 'rainbow-text' : (dayStats.snow >= 10 ? 'apple-rainbow-text' : 'text-text-blue')}">
                           ${dayStats.snow} cm snow
                         </div>
                       ` : ''}
@@ -50,7 +50,7 @@ export function createDefaultCard(resort) {
                       <div class="text-xs text-text-primary font-medium">
                         Freezing: ${day.freezingLevel}
                       </div>
-                      <div class="text-text-blue text-xs font-medium mt-0.5 truncate" title="${day.snowCondition.text}">
+                      <div class="text-xs font-medium mt-0.5 truncate ${day.snowCondition.isRainbow ? 'apple-rainbow-text' : 'text-text-blue'}" title="${day.snowCondition.text}">
                         ${day.snowCondition.text}
                       </div>
                     </div>
@@ -92,7 +92,16 @@ function calculateDayStats(day) {
 
   let maxTemp = -Infinity;
   let totalSnow = 0;
-  let totalWind = 0;
+  
+  // Get PM wind or fallback to available wind
+  let wind = 0;
+  const pmPeriod = periods.find(p => p.time === 'PM');
+  if (pmPeriod) {
+    wind = parseFloat(pmPeriod.wind.replace(' km/h', '')) || 0;
+  } else if (periods.length > 0) {
+    // If no PM period, take the first available wind value
+    wind = parseFloat(periods[0].wind.replace(' km/h', '')) || 0;
+  }
 
   periods.forEach(period => {
     // Temperature - find maximum
@@ -102,16 +111,12 @@ function calculateDayStats(day) {
     // Snow - accumulate
     const snowAmount = parseFloat(period.snow.replace(' cm', '')) || 0;
     totalSnow += snowAmount;
-
-    // Wind - average
-    const windAmount = parseFloat(period.wind.replace(' km/h', '')) || 0;
-    totalWind += windAmount;
   });
 
   return {
     maxTemp: Math.round(maxTemp * 10) / 10,
     snow: Math.round(totalSnow * 10) / 10,
-    wind: Math.round(totalWind / periods.length)
+    wind: Math.round(wind)
   };
 }
 

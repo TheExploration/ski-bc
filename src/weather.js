@@ -1,20 +1,28 @@
-export async function scrapeWeather(URL, resortName) {
+export async function fetchAllData() {
   try {
-    const apiUrl = `https://snow-scraper.azurewebsites.net/scrape?url=${encodeURIComponent(URL)}`;
-    const response = await fetch(apiUrl);
+    const response = await fetch('https://snow-scraper.azurewebsites.net/all');
     
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
-    const responseData = await response.json();
-    if (!responseData.success) {
-      throw new Error('API returned unsuccessful response');
+    return await response.json();
+  } catch (err) {
+    console.error('Error fetching weather data:', err);
+    throw err;
+  }
+}
+
+export function processResortData(allData, resortName, elevation = 'botData') {
+  try {
+    const resortData = allData[elevation].resorts.find(r => r.resort === resortName);
+    if (!resortData || !resortData.data) {
+      throw new Error('Resort data not found');
     }
 
-    const data = responseData.data;
-    if (!data || !data.success) {
-      throw new Error('Data object is invalid or unsuccessful');
+    const data = resortData.data;
+    if (!data.success) {
+      throw new Error('Data object is unsuccessful');
     }
 
     const days = [];
@@ -64,7 +72,7 @@ export async function scrapeWeather(URL, resortName) {
       days
     };
   } catch (err) {
-    console.error('Error scraping weather forecast:', err);
+    console.error('Error processing resort data:', err);
     throw err;
   }
 }
