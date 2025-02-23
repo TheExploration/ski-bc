@@ -2,6 +2,31 @@
 ![Static Badge](https://img.shields.io/badge/build-passing-brightgreen)
 ![GitHub Repo stars](https://img.shields.io/github/stars/TheExploration/skibc)
 
-An easy-to-use snow forecast website that gives you up-to-date weather and snow conditions for ski resorts in British Columbia, so you can plan your perfect day on the slopes. Forecast data is from snow-forecast.com, from my experience its the most accurate forecast.
 
-* forecast snow and temperature are conservative. tends to underestimate interior mountains
+**The best forecast website for BC ski/board!**
+
+### [- Website -](https://skibc.tech/)
+
+
+## Description
+
+An easy-to-use snow forecast website for ski/board in British Columbia with modern UI.
+<br>
+<br>
+
+Forecast data is from snow-forecast.com, which I find to be the most accurate forecast. Let me know if there is a better forecast.
+
+<br>
+<br>
+
+
+![image](https://github.com/user-attachments/assets/ae92c607-ebff-457a-b2b6-28ec923df54b)
+
+
+
+
+## Notes: 
+
+Forecast snow and temperature are conservative
+
+Tends to underestimate interior mountains and overestimate coastal mountains
