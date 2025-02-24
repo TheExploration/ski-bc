@@ -27,6 +27,7 @@ Forecast data is from snow-forecast.com, which I find to be the most accurate fo
 
 ## Notes: 
 
-Forecast snow and temperature are conservative
+- Saves the resorts you select
+- Forecast snow and temperature are conservative
+- Tends to underestimate interior mountains and overestimate coastal mountains
 
-Tends to underestimate interior mountains and overestimate coastal mountains
