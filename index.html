@@ -6,9 +6,11 @@
     <style>
       .corner-image {
         position: fixed;
+        top: 20px;
         z-index: 50;
         opacity: 1;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.3s ease;
+        display: block;
       }
       .corner-image img {
         border-radius: 8px;
@@ -34,32 +36,26 @@
       .attribution {
         position: fixed;
         left: 20px;
+        top: 80px;
         font-size: 10px;
         color: #86868B;
         font-family: system-ui, -apple-system, sans-serif;
         opacity: 1;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.3s ease;
+        display: block;
       }
-      @media (min-width: 769px) {
+      @media screen and (max-width: 768px) {
         .corner-image {
-          top: 20px;
+          display: none !important;
+          visibility: hidden;
+          opacity: 0;
+          pointer-events: none;
         }
         .attribution {
-          top: 80px;
-        }
-      }
-      @media (max-width: 768px) {
-        .corner-image {
-          bottom: 20px;
-        }
-        .attribution {
-          bottom: 80px;
-        }
-        .left-image img {
-          width: 120px;
-        }
-        .right-image img {
-          width: 80px;
+          display: none !important;
+          visibility: hidden;
+          opacity: 0;
+          pointer-events: none;
         }
       }
     </style>
