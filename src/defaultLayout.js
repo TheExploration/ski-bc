@@ -1,9 +1,61 @@
 export function createDefaultCard(resort) {
+  const webcamUrls = {
+    "Apex Mountain": "https://apexresort.com/weather/?1#live-webcams",
+    "Mt Baldy": "https://baldyresort.com/baldy-mt-resort/webcams/",
+    "Powder King": "https://www.powderking.com/mountain/ski-report",
+    "Nakiska": "https://skinakiska.com/conditions/mountain-cam/",
+    "Castle Mountain": "https://www.skicastle.ca/webcams/",
+    "Pass Powderkeg": "https://www.passpowderkeg.com/home/snowcam/",
+    "Fairmont Hot Springs": "https://www.fairmonthotsprings.com/resort-webcams",
+    "Shames Mountain": "https://mymountaincoop.ca/shames-mountain/our-mountain/snow-report/#webcam",
+    "Manning Park": "https://manningpark.com/weather-webcams-and-trail-status/",
+    "Big White": "https://www.bigwhite.com/mountain-conditions/webcams",
+    "Hudson Bay Mountain": "https://hudsonbaymountain.com/conditions/",
+    "Cypress Mountain": "https://www.cypressmountain.com/mountain-report#downhill-webcams",
+    "Fernie Alpine": "https://skifernie.com/conditions/snow-report/",
+    "Grouse Mountain": "https://www.grousemountain.com/web-cams/",
+    "Sasquatch Mountain" : "https://sasquatchmountain.ca/weather-and-conditions/webcams/",
+    "Kicking Horse": "https://kickinghorseresort.com/conditions/mountain-cam/",
+    "Kimberley Alpine": "https://skikimberley.com/conditions/mountain-cam/",
+    "Mount Seymour": "https://mtseymour.ca/the-mountain/todays-conditions-hours#block-webcams",
+    "Mount Washington": "https://www.mountwashington.ca/the-mountain/conditions/snow-report.html#section-id-1693592933213",
+    "Panorama Mountain": "https://www.panoramaresort.com/panorama-today/daily-snow-report/#webcam10",
+    "Red Mountain": "https://www.redresort.com/report/",
+    "Revelstoke Mountain": "https://www.revelstokemountainresort.com/mountain/conditions/webcams/",
+    "SilverStar Mountain": "https://www.skisilverstar.com/the-mountain/webcams",
+    "Sun Peaks": "https://www.sunpeaksresort.com/ski-ride/weather-conditions-cams/webcams",
+    "Whistler Blackcomb": "https://whistlerpeak.com/",
+    "Whitewater": "https://skiwhitewater.com/webcams/",
+    "Lake Louise": "https://www.skilouise.com/snow-conditions/",
+    "Sunshine Village": "https://www.skibanff.com/conditions",
+    "Mt Norquay": "https://banffnorquay.com/winter/conditions/",
+    "Marmot Basin": "https://www.skimarmot.com/mountain/weather-conditions/",
+    "Mt Baker": "https://www.mtbaker.us/snow-report/",
+    "Crystal Mountain WA": "https://www.crystalmountainresort.com/the-mountain/mountain-report-and-webcams/webcams",
+    "Stevens Pass": "https://www.stevenspass.com/the-mountain/mountain-conditions/mountain-cams.aspx"
+  };
+
+  const webcamUrl = webcamUrls[resort.name];
+
   return `
     <div class="resort-card rounded-2xl p-4 shadow-lg mb-6 backdrop-blur-md bg-white/80">
-      <div class="mb-3">
-        <h2 class="text-xl font-semibold text-text-primary tracking-tight">${resort.name}</h2>
-        <p class="text-xs text-text-secondary">${resort.elevation}</p>
+      <div class="mb-3 flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-semibold text-text-primary tracking-tight">${resort.name}</h2>
+          <p class="text-xs text-text-secondary">${resort.elevation}</p>
+        </div>
+        ${webcamUrl ? `
+          <a href="${webcamUrl}" 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             class="flex items-center gap-2 px-3 py-1.5 bg-snow-blue rounded-lg hover:bg-blue-50 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-text-blue">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+            </svg>
+            <span class="text-sm font-medium text-text-blue">Webcams</span>
+          </a>
+        ` : ''}
       </div>
       <div class="relative">
         <button 
@@ -43,7 +95,7 @@ export function createDefaultCard(resort) {
                       ` : ''}
                     </div>
                     <div class="text-sm text-text-primary mt-1 font-medium truncate" title="${weatherText}">${weatherText}</div>
-                    <div class="text-xs font-medium ${dayStats.wind > 20 ? 'text-text-blue' : 'text-text-secondary'} mt-1">
+                    <div class="text-xs font-medium ${dayStats.wind >= 20 ? 'text-text-blue' : 'text-text-secondary'} mt-1">
                       ${dayStats.wind} km/h wind
                     </div>
                     <div class="mt-2 pt-2 border-t border-black/5">
