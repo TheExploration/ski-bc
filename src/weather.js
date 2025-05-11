@@ -1,6 +1,6 @@
 export async function fetchAllData() {
   try {
-    const response = await fetch('https://snow-scraper.azurewebsites.net/all');
+    const response = await fetch('http://35.238.45.243:6927/all');
     
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
