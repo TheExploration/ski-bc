@@ -1,6 +1,6 @@
 export async function fetchAllData() {
   try {
-    const response = await fetch('snow-https://snow-scraper.duckdns.org/all');
+    const response = await fetch('https://snow-scraper.duckdns.org/all');
     
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
