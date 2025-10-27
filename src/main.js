@@ -117,7 +117,7 @@ function createApp() {
       <header class="text-center mb-12">
         <h1 class="text-4xl font-bold mb-2 apple-rainbow-text">Snow Forecast BC</h1>
         <p class="text-gray-600 font-semibold">The best forecast website for BC ski/board!</p>
-        <p class="text-xs text-gray-400 font-normal">* forecast is conservative. tends to underestimate interior mountains</p>
+        <p class="text-xs text-gray-400 font-normal"></p>
 
       </header>
       
