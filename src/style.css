@@ -104,3 +104,59 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
+
+/* Corner image styles */
+.corner-image {
+  position: fixed;
+  top: 20px;
+  z-index: 50;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  display: block;
+}
+.corner-image img {
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+.corner-image img:hover {
+  transform: scale(1.05);
+}
+.left-image {
+  left: 20px;
+}
+.left-image img {
+  width: 150px;
+  height: auto;
+}
+.right-image {
+  right: 20px;
+}
+.right-image img {
+  width: 100px;
+  height: auto;
+}
+.attribution {
+  position: fixed;
+  left: 20px;
+  top: 80px;
+  font-size: 10px;
+  color: #86868B;
+  font-family: system-ui, -apple-system, sans-serif;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  display: block;
+}
+@media screen and (max-width: 768px) {
+  .corner-image {
+    display: none !important;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .attribution {
+    display: none !important;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
