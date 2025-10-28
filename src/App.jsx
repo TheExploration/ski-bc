@@ -3,6 +3,7 @@ import { Header } from './components/Header.jsx';
 import { ControlPanel } from './components/ControlPanel.jsx';
 import { ResortCard } from './components/ResortCard.jsx';
 import { DefaultCard } from './components/DefaultCard.jsx';
+import SplashCursor from './components/ui/splash-cursor.jsx';
 import { useWeatherData } from './hooks/useWeatherData.js';
 import { useLocalStorage } from './hooks/useLocalStorage.js';
 import { useResortFiltering } from './hooks/useResortFiltering.js';
@@ -30,6 +31,7 @@ function App() {
   // Local component state
   const [moreInfo, setMoreInfo] = useState(false);
   const [resortData, setResortData] = useState(new Map());
+  const [isMouseDown, setIsMouseDown] = useState(false);
   
   // Resort filtering hook
   const { searchTerm, setSearchTerm, filteredResorts, sortResorts } = useResortFiltering(skiResorts, allWeatherData);
@@ -104,6 +106,23 @@ function App() {
   useEffect(() => {
     loadSelectedResorts();
   }, [loadSelectedResorts]);
+
+  // Mouse down/up event handlers for splash cursor
+  useEffect(() => {
+    const handleMouseDown = () => setIsMouseDown(true);
+    const handleMouseUp = () => setIsMouseDown(false);
+    const handleMouseLeave = () => setIsMouseDown(false); // Reset when mouse leaves window
+
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
 
   // Handle resort selection changes
   const handleResortsChange = useCallback((newResorts) => {
@@ -181,6 +200,7 @@ function App() {
 
   return (
     <div className="min-h-screen p-8">
+      <SplashCursor enabled={isMouseDown} />
       <Header />
       
       <div className="max-w-7xl mx-auto">

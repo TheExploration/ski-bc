@@ -15,14 +15,22 @@ export async function fetchAllData() {
 
 export function processResortData(allData, resortName, elevation = 'botData') {
   try {
+    // Check if elevation data exists
+    if (!allData || !allData[elevation] || !allData[elevation].resorts) {
+      console.warn(`Missing elevation data for ${elevation}`);
+      return null;
+    }
+
     const resortData = allData[elevation].resorts.find(r => r.resort === resortName);
     if (!resortData || !resortData.data) {
-      throw new Error('Resort data not found');
+      console.warn(`Resort data not found for ${resortName} at ${elevation} elevation`);
+      return null;
     }
 
     const data = resortData.data;
     if (!data.success) {
-      throw new Error('Data object is unsuccessful');
+      console.warn(`Data object unsuccessful for ${resortName}`);
+      return null;
     }
 
     const days = [];
@@ -63,7 +71,8 @@ export function processResortData(allData, resortName, elevation = 'botData') {
     }
 
     if (days.length === 0) {
-      throw new Error('No forecast days found');
+      console.warn(`No forecast days found for ${resortName}`);
+      return null;
     }
 
     return {
@@ -72,8 +81,8 @@ export function processResortData(allData, resortName, elevation = 'botData') {
       days
     };
   } catch (err) {
-    console.error('Error processing resort data:', err);
-    throw err;
+    console.error(`Error processing resort data for ${resortName}:`, err);
+    return null;
   }
 }
 
