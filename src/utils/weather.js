@@ -147,3 +147,26 @@ function getPeriodLabel(index, totalPeriods) {
   }
   return `Period ${index + 1}`;
 }
+
+export function calculateSnowTotals(resort) {
+  if (!resort || !resort.days) return { next3Days: 0, next7Days: 0 };
+  
+  const next3Days = resort.days.slice(0, 3);
+  const next7Days = resort.days.slice(0, 7);
+  
+  const calculate = (days) => {
+    return days.reduce((total, day) => {
+      const dayTotal = day.periods.reduce((daySum, period) => {
+        const snowValue = period.snow.toString().replace(/[^\d.-]/g, '');
+        const snow = parseFloat(snowValue) || 0;
+        return daySum + snow;
+      }, 0);
+      return total + dayTotal;
+    }, 0);
+  };
+  
+  return {
+    next3Days: Math.round(calculate(next3Days)),
+    next7Days: Math.round(calculate(next7Days))
+  };
+}

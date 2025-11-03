@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -26,6 +27,17 @@ export default {
           primary: '#1D1D1F',
           secondary: '#86868B',
           blue: '#007AFF'
+        },
+        // Dark theme colors
+        'dark': {
+          bg: '#000000',
+          card: 'rgba(28, 28, 30, 0.8)',
+          'snow-blue': 'rgba(28, 28, 30, 0.8)',
+          text: {
+            primary: '#F2F2F7',
+            secondary: '#8E8E93',
+            blue: '#0A84FF'
+          }
         }
       },
       backdropBlur: {

@@ -159,9 +159,9 @@ function App() {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen p-8 flex items-center justify-center">
+      <div className="min-h-screen p-8 flex items-center justify-center bg-white dark:bg-dark-bg transition-colors duration-300">
         <div className="text-center">
-          <div className="text-xl font-semibold text-gray-600">Loading weather data...</div>
+          <div className="text-xl font-semibold text-gray-600 dark:text-dark-text-secondary">Loading weather data...</div>
         </div>
       </div>
     );
@@ -170,17 +170,17 @@ function App() {
   // Show error state
   if (error) {
     return (
-      <div className="min-h-screen p-8 flex items-center justify-center">
+      <div className="min-h-screen p-8 flex items-center justify-center bg-white dark:bg-dark-bg transition-colors duration-300">
         <div className="text-center">
           <div className="text-xl font-semibold text-red-600">Error loading weather data</div>
-          <div className="text-sm text-gray-600 mt-2">Please try refreshing the page</div>
+          <div className="text-sm text-gray-600 dark:text-dark-text-secondary mt-2">Please try refreshing the page</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-8 bg-white dark:bg-dark-bg transition-colors duration-300">
       <Header />
       
       <div className="max-w-7xl mx-auto">
@@ -218,7 +218,7 @@ function App() {
           
           {selectedResorts.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-gray-500 text-lg">Select resorts to view forecasts</div>
+              <div className="text-gray-500 dark:text-dark-text-secondary text-lg">Select resorts to view forecasts</div>
             </div>
           )}
         </div>

@@ -19,41 +19,89 @@ export function useResortFiltering(skiResorts, allWeatherData) {
 
     const elevation = selectedElevation === 'bot' ? 'botData' : selectedElevation === 'mid' ? 'midData' : 'topData';
     
+    // Helper functions for single day calculations
+    const getMaxTemp = (day) => {
+      return Math.max(
+        ...day.periods.map(period => {
+          const temp = parseFloat(period.temp);
+          return isNaN(temp) ? -Infinity : temp;
+        })
+      );
+    };
+
+    const getTotalSnow = (day) => {
+      return day.periods.reduce((sum, period) => {
+        const snow = parseFloat(period.snow) || 0;
+        return sum + snow;
+      }, 0);
+    };
+
+    const getPMWind = (day) => {
+      const pmPeriod = day.periods.find(p => p.time === 'PM');
+      const nightPeriod = day.periods.find(p => p.time === 'Night');
+      
+      return pmPeriod !== undefined 
+        ? parseFloat(pmPeriod.wind) 
+        : (nightPeriod !== undefined ? parseFloat(nightPeriod.wind) : 0);
+    };
+
+    // Helper functions for multi-day calculations
+    const getMaxTempMultipleDays = (days, numDays) => {
+      const selectedDays = days.slice(0, Math.min(numDays, days.length));
+      let maxTemp = -Infinity;
+      selectedDays.forEach(day => {
+        const dayMaxTemp = getMaxTemp(day);
+        if (dayMaxTemp > maxTemp) {
+          maxTemp = dayMaxTemp;
+        }
+      });
+      return maxTemp === -Infinity ? 0 : maxTemp;
+    };
+
+    const getTotalSnowMultipleDays = (days, numDays) => {
+      const selectedDays = days.slice(0, Math.min(numDays, days.length));
+      return selectedDays.reduce((total, day) => {
+        return total + getTotalSnow(day);
+      }, 0);
+    };
+
+    const getAvgWindMultipleDays = (days, numDays) => {
+      const selectedDays = days.slice(0, Math.min(numDays, days.length));
+      if (selectedDays.length === 0) return 0;
+      
+      const totalWind = selectedDays.reduce((total, day) => {
+        return total + getPMWind(day);
+      }, 0);
+      return totalWind / selectedDays.length;
+    };
+    
     let sortedResorts = [...resorts].sort((a, b) => {
       const resortDataA = processResortData(allWeatherData, a, elevation);
       const resortDataB = processResortData(allWeatherData, b, elevation);
       
       if (!resortDataA || !resortDataB) return 0;
 
+      // Handle multi-day aggregation sorting
+      if (typeof selectedSortDay === 'string') {
+        const numDays = selectedSortDay === 'next3days' ? 3 : 7;
+        
+        switch (sortBy) {
+          case 'temperature':
+            return getMaxTempMultipleDays(resortDataA.days, numDays) - getMaxTempMultipleDays(resortDataB.days, numDays);
+          case 'snowfall':
+            return getTotalSnowMultipleDays(resortDataB.days, numDays) - getTotalSnowMultipleDays(resortDataA.days, numDays);
+          case 'wind':
+            return getAvgWindMultipleDays(resortDataB.days, numDays) - getAvgWindMultipleDays(resortDataA.days, numDays);
+          default:
+            return 0;
+        }
+      }
+      
+      // Handle single day sorting (existing logic)
       const dayA = resortDataA.days[selectedSortDay];
       const dayB = resortDataB.days[selectedSortDay];
 
       if (!dayA || !dayB) return 0;
-
-      const getMaxTemp = (day) => {
-        return Math.max(
-          ...day.periods.map(period => {
-            const temp = parseFloat(period.temp);
-            return isNaN(temp) ? -Infinity : temp;
-          })
-        );
-      };
-
-      const getTotalSnow = (day) => {
-        return day.periods.reduce((sum, period) => {
-          const snow = parseFloat(period.snow) || 0;
-          return sum + snow;
-        }, 0);
-      };
-
-      const getPMWind = (day) => {
-        const pmPeriod = day.periods.find(p => p.time === 'PM');
-        const nightPeriod = day.periods.find(p => p.time === 'Night');
-        
-        return pmPeriod !== undefined 
-          ? parseFloat(pmPeriod.wind) 
-          : (nightPeriod !== undefined ? parseFloat(nightPeriod.wind) : 0);
-      };
 
       switch (sortBy) {
         case 'temperature':

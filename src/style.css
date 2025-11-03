@@ -9,13 +9,33 @@
   }
 }
 
+/* CSS Variables for theme support */
+:root {
+  --bg-primary: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-border: rgba(255, 255, 255, 0.5);
+  --period-card-bg: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
+  --period-card-border: rgba(255, 255, 255, 0.3);
+  --snow-blue-bg: rgba(240, 244, 248, 0.8);
+}
+
+.dark {
+  --bg-primary: #000000;
+  --card-bg: rgba(28, 28, 30, 0.8);
+  --card-border: rgba(44, 44, 46, 0.5);
+  --period-card-bg: linear-gradient(to bottom, rgba(44, 44, 46, 0.95), rgba(28, 28, 30, 0.8));
+  --period-card-border: rgba(44, 44, 46, 0.3);
+  --snow-blue-bg: rgba(28, 28, 30, 0.8);
+}
+
 body {
-  background: #ffffff;
+  background: var(--bg-primary);
   min-height: 100vh;
   position: relative;
   font-family: 'SF Pro Display', system-ui, sans-serif;
   font-weight: 400;
   letter-spacing: -0.02em;
+  transition: background-color 0.3s ease;
 }
 .apple-rainbow-text {
     background: linear-gradient(209deg, #ea6044 39%, #dc5083 50%, #9a6df7 67%, #3f8def 81%);
@@ -53,19 +73,24 @@ body {
 .resort-card {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  transition: all 0.3s ease;
 }
 
 .period-card {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--period-card-bg);
+  border: 1px solid var(--period-card-border);
   transition: all 0.3s ease;
 }
 
 .period-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dark .period-card:hover {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
 }
 
 .weather-icon {

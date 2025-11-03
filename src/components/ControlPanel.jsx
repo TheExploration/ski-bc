@@ -74,13 +74,23 @@ export function ControlPanel({
   };
 
   const getSortDayOptions = () => {
-    if (selectedResorts.length === 0 || !allWeatherData) return [];
+    const specialOptions = [
+      { name: "Next 3 Days", value: "next3days" },
+      { name: "Next 7 Days", value: "next7days" }
+    ];
+    
+    if (selectedResorts.length === 0 || !allWeatherData) {
+      return { specialOptions, regularDays: [] };
+    }
     
     const firstResort = selectedResorts[0];
     const elevation = selectedElevation === 'bot' ? 'botData' : selectedElevation === 'mid' ? 'midData' : 'topData';
     const resortData = processResortData(allWeatherData, firstResort, elevation);
     
-    return resortData?.days || [];
+    return {
+      specialOptions,
+      regularDays: resortData?.days || []
+    };
   };
 
   const isAllSelected = filteredResorts.length > 0 && filteredResorts.every(resort => selectedResorts.includes(resort));
@@ -91,8 +101,16 @@ export function ControlPanel({
   const sortText = selectedSort === 'temperature' ? 'Sort by Temperature' :
                    selectedSort === 'snowfall' ? 'Sort by Snowfall' : 'Sort by Wind';
 
-  const sortDayOptions = getSortDayOptions();
-  const sortDayText = sortDayOptions[selectedSortDay]?.name || 'Today';
+  const sortDayData = getSortDayOptions();
+  const getSortDayText = () => {
+    if (typeof selectedSortDay === 'string') {
+      const specialOption = sortDayData.specialOptions.find(opt => opt.value === selectedSortDay);
+      return specialOption?.name || 'Today';
+    } else {
+      return sortDayData.regularDays[selectedSortDay]?.name || 'Today';
+    }
+  };
+  const sortDayText = getSortDayText();
 
   return (
     <div className="mb-8 flex flex-wrap gap-4 items-center justify-between">
@@ -109,23 +127,23 @@ export function ControlPanel({
                 setTimeout(() => searchInputRef.current?.focus(), 100);
               }
             }}
-            className="w-full md:w-64 bg-white border border-gray-300 rounded-lg px-4 py-2 text-left flex items-center justify-between shadow-sm hover:bg-gray-50"
+            className="w-full md:w-64 bg-white dark:bg-dark-card border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-left flex items-center justify-between shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
           >
-            <span className="block truncate">Select Resorts</span>
+            <span className="block truncate text-gray-900 dark:text-dark-text-primary">Select Resorts</span>
             <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
           {showDropdown && (
-            <div className="absolute z-10 mt-1 w-full md:w-64 bg-white rounded-lg shadow-lg max-h-96 overflow-y-auto">
-              <div className="sticky top-0 bg-white p-2 border-b border-gray-200">
+            <div className="absolute z-10 mt-1 w-full md:w-64 bg-white dark:bg-dark-card rounded-lg shadow-lg max-h-96 overflow-y-auto border border-gray-200 dark:border-gray-600">
+              <div className="sticky top-0 bg-white dark:bg-dark-card p-2 border-b border-gray-200 dark:border-gray-600">
                 <div className="relative">
                   <input
                     ref={searchInputRef}
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md pl-9 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md pl-9 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-gray-400"
                     placeholder="Search resorts..."
                     onClick={(e) => e.stopPropagation()}
                   />
@@ -135,27 +153,27 @@ export function ControlPanel({
                 </div>
               </div>
               <div className="p-2 space-y-1">
-                <label className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
+                <label className="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer transition-colors duration-200">
                   <input 
                     type="checkbox" 
                     checked={isAllSelected} 
                     onChange={handleSelectAll}
                     className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm font-medium">
+                  <span className="ml-2 text-sm font-medium text-gray-900 dark:text-dark-text-primary">
                     {isAllSelected ? 'Deselect All' : 'Select All'}
                   </span>
                 </label>
-                <div className="border-t border-gray-200 my-2"></div>
+                <div className="border-t border-gray-200 dark:border-gray-600 my-2"></div>
                 {filteredResorts.map(resort => (
-                  <label key={resort} className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
+                  <label key={resort} className="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer transition-colors duration-200">
                     <input 
                       type="checkbox" 
                       checked={selectedResorts.includes(resort)}
                       onChange={() => handleResortToggle(resort)}
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="ml-2 text-sm">{getDisplayName(resort)}</span>
+                    <span className="ml-2 text-sm text-gray-900 dark:text-dark-text-primary">{getDisplayName(resort)}</span>
                   </label>
                 ))}
               </div>
@@ -172,22 +190,22 @@ export function ControlPanel({
               setShowSortMenu(false);
               setShowSortDayMenu(false);
             }}
-            className="w-full md:w-48 bg-white border border-gray-300 rounded-lg px-4 py-2 text-left flex items-center justify-between shadow-sm hover:bg-gray-50"
+            className="w-full md:w-48 bg-white dark:bg-dark-card border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-left flex items-center justify-between shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
           >
-            <span className="block truncate capitalize">{elevationText}</span>
+            <span className="block truncate capitalize text-gray-900 dark:text-dark-text-primary">{elevationText}</span>
             <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
           {showElevationMenu && (
-            <div className="absolute right-0 z-10 mt-1 w-48 bg-white rounded-lg shadow-lg">
+            <div className="absolute right-0 z-10 mt-1 w-48 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-600">
               <div className="p-2 space-y-1">
                 <button 
                   onClick={() => {
                     setSelectedElevation('bot');
                     setShowElevationMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 rounded-lg"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-900 dark:text-dark-text-primary transition-colors duration-200"
                 >
                   Base Forecast
                 </button>
@@ -196,7 +214,7 @@ export function ControlPanel({
                     setSelectedElevation('mid');
                     setShowElevationMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 rounded-lg"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-900 dark:text-dark-text-primary transition-colors duration-200"
                 >
                   Mid Forecast
                 </button>
@@ -205,7 +223,7 @@ export function ControlPanel({
                     setSelectedElevation('top');
                     setShowElevationMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 rounded-lg"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-900 dark:text-dark-text-primary transition-colors duration-200"
                 >
                   Peak Forecast
                 </button>
@@ -222,7 +240,7 @@ export function ControlPanel({
             onChange={(e) => setMoreInfo(e.target.checked)}
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
-          <span className="text-sm font-bold text-gray-900">Full View</span>
+          <span className="text-sm font-bold text-gray-900 dark:text-dark-text-primary">Full View</span>
         </label>
       </div>
 
@@ -230,7 +248,7 @@ export function ControlPanel({
         {/* Reverse Order Button */}
         <button
           onClick={() => setIsReversed(!isReversed)}
-          className="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 text-sm font-medium text-gray-700"
+          className="px-4 py-2 bg-white dark:bg-dark-card border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium text-gray-700 dark:text-dark-text-primary transition-colors duration-200"
         >
           {isReversed ? '↑ Reverse Order' : '↓ Normal Order'}
         </button>
@@ -244,22 +262,22 @@ export function ControlPanel({
               setShowElevationMenu(false);
               setShowSortDayMenu(false);
             }}
-            className="w-full md:w-48 bg-white border border-gray-300 rounded-lg px-4 py-2 text-left flex items-center justify-between shadow-sm hover:bg-gray-50"
+            className="w-full md:w-48 bg-white dark:bg-dark-card border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-left flex items-center justify-between shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
           >
-            <span className="block truncate capitalize">{sortText}</span>
+            <span className="block truncate capitalize text-gray-900 dark:text-dark-text-primary">{sortText}</span>
             <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
           {showSortMenu && (
-            <div className="absolute right-0 z-10 mt-1 w-48 bg-white rounded-lg shadow-lg">
+            <div className="absolute right-0 z-10 mt-1 w-48 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-600">
               <div className="p-2 space-y-1">
                 <button 
                   onClick={() => {
                     setSelectedSort('temperature');
                     setShowSortMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 rounded-lg"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-900 dark:text-dark-text-primary transition-colors duration-200"
                 >
                   Sort by Temperature
                 </button>
@@ -268,7 +286,7 @@ export function ControlPanel({
                     setSelectedSort('snowfall');
                     setShowSortMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 rounded-lg"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-900 dark:text-dark-text-primary transition-colors duration-200"
                 >
                   Sort by Snowfall
                 </button>
@@ -277,7 +295,7 @@ export function ControlPanel({
                     setSelectedSort('wind');
                     setShowSortMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 rounded-lg"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-900 dark:text-dark-text-primary transition-colors duration-200"
                 >
                   Sort by Wind
                 </button>
@@ -295,30 +313,52 @@ export function ControlPanel({
               setShowElevationMenu(false);
               setShowSortMenu(false);
             }}
-            className="w-full md:w-32 bg-white border border-gray-300 rounded-lg px-4 py-2 text-left flex items-center justify-between shadow-sm hover:bg-gray-50"
+            className="w-full md:w-40 bg-white dark:bg-dark-card border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-left flex items-center justify-between shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
           >
-            <span className="block truncate capitalize">{sortDayText}</span>
+            <span className="block truncate capitalize text-gray-900 dark:text-dark-text-primary">{sortDayText}</span>
             <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
           {showSortDayMenu && (
-            <div className="absolute right-0 z-10 mt-1 w-32 bg-white rounded-lg shadow-lg">
+            <div className="absolute right-0 z-10 mt-1 w-40 bg-white dark:bg-dark-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-600">
               <div className="p-2 space-y-1">
-                {sortDayOptions.length > 0 ? 
-                  sortDayOptions.map((day, index) => (
+                {/* Special aggregate options */}
+                {sortDayData.specialOptions.map((option) => (
+                  <button 
+                    key={option.value}
+                    onClick={() => {
+                      setSelectedSortDay(option.value);
+                      setShowSortDayMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg font-medium text-blue-600 dark:text-blue-400 transition-colors duration-200"
+                  >
+                    {option.name}
+                  </button>
+                ))}
+                
+                {/* Separator */}
+                {sortDayData.regularDays.length > 0 && (
+                  <div className="border-t border-gray-200 dark:border-gray-600 my-2"></div>
+                )}
+                
+                {/* Regular day options */}
+                {sortDayData.regularDays.length > 0 ? 
+                  sortDayData.regularDays.map((day, index) => (
                     <button 
                       key={index}
                       onClick={() => {
                         setSelectedSortDay(index);
                         setShowSortDayMenu(false);
                       }}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 rounded-lg"
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-900 dark:text-dark-text-primary transition-colors duration-200"
                     >
                       {day.name}
                     </button>
                   )) :
-                  <div className="text-sm text-gray-500 px-4 py-2">Loading...</div>
+                  !sortDayData.specialOptions.length && (
+                    <div className="text-sm text-gray-500 dark:text-dark-text-secondary px-4 py-2">Loading...</div>
+                  )
                 }
               </div>
             </div>

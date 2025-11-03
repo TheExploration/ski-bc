@@ -1,4 +1,5 @@
 import React from 'react';
+import { calculateSnowTotals } from '../utils/weather.js';
 
 function getWeatherEmoji(condition) {
   if (!condition) return '⛅';
@@ -53,14 +54,23 @@ function lerp(start, end, t) {
 }
 
 export function ResortCard({ resort }) {
+  const totals = calculateSnowTotals(resort);
+  
   return (
     <div className="resort-card rounded-3xl p-5 shadow-lg mb-6 transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-text-primary">{resort.name}</h2>
-          <p className="text-sm font-medium text-text-secondary">Base Elevation: {resort.elevation}</p>
+          <h2 className="text-2xl font-bold text-text-primary dark:text-dark-text-primary">{resort.name}</h2>
+          <p className="text-sm font-medium text-text-blue dark:text-dark-text-blue">Base Elevation: {resort.elevation}</p>
         </div>
-        <div className="text-xs font-medium text-text-secondary">
+        <div className="flex-1 flex justify-center">
+          <div className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">
+            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              Totals: Next 3 Days: {totals.next3Days}cm | Next 7 Days: {totals.next7Days}cm
+            </span>
+          </div>
+        </div>
+        <div className="text-xs font-medium text-text-secondary dark:text-dark-text-secondary">
           Last updated: {new Date().toLocaleTimeString()}
         </div>
       </div>
@@ -77,12 +87,12 @@ export function ResortCard({ resort }) {
                   const displayCondition = pmPeriod?.condition || nightPeriod?.condition || day.weather;
                   
                   return (
-                    <th key={dayIndex} className="px-5 py-2 bg-snow-blue rounded-2xl" style={{minWidth: '280px'}}>
-                      <div className="text-base font-bold text-text-primary flex items-center justify-center gap-2">
+                    <th key={dayIndex} className="px-5 py-2 rounded-2xl" style={{minWidth: '280px', backgroundColor: 'var(--snow-blue-bg)'}}>
+                      <div className="text-base font-bold text-text-primary dark:text-dark-text-primary flex items-center justify-center gap-2">
                         {day.name}
                         <span className="inline-flex items-center">{getWeatherEmoji(displayCondition)}</span>
                       </div>
-                      <div className="text-xs font-semibold text-text-secondary">{displayCondition}</div>
+                      <div className="text-xs font-semibold text-text-secondary dark:text-dark-text-secondary">{displayCondition}</div>
                     </th>
                   );
                 })}
@@ -91,7 +101,7 @@ export function ResortCard({ resort }) {
             <tbody>
               <tr>
                 <td className="align-top pt-3">
-                  <div className="flex flex-col gap-[42px] pl-3 pt-[60px] text-sm font-semibold text-text-secondary">
+                  <div className="flex flex-col gap-[42px] pl-3 pt-[60px] text-sm font-semibold text-text-secondary dark:text-dark-text-secondary">
                     <div>Snow</div>
                     <div>Rain</div>
                     <div>Wind</div>
@@ -121,7 +131,7 @@ export function ResortCard({ resort }) {
                                 day.periods.length === 2 && index === 1 ? 'col-span-2' : ''
                               }`}
                             >
-                              <div className="text-sm font-bold text-text-primary mb-1">{period.time}</div>
+                              <div className="text-sm font-bold text-text-primary dark:text-dark-text-primary mb-1">{period.time}</div>
                               <div 
                                 className="text-lg font-bold mb-4" 
                                 style={tempStyle.includes('background') ? {
@@ -137,7 +147,7 @@ export function ResortCard({ resort }) {
                               </div>
                               <div className="flex flex-col gap-[32px] text-sm w-full">
                                 <div 
-                                  className={`font-semibold ${snowAmount === 0 ? 'text-text-secondary' : ''}`} 
+                                  className={`font-semibold ${snowAmount === 0 ? 'text-text-secondary dark:text-dark-text-secondary' : ''}`} 
                                   style={snowStyle && snowAmount > 0 ? (
                                     snowAmount >= 5 ? {
                                       background: 'linear-gradient(209deg, #ea6044 39%, #dc5083 50%, #9a6df7 67%, #3f8def 81%)',
@@ -151,18 +161,18 @@ export function ResortCard({ resort }) {
                                 >
                                   {period.snow}
                                 </div>
-                                <div className="text-text-secondary font-semibold">{period.rain}</div>
-                                <div className={`font-semibold ${windSpeed >= 20 ? 'text-text-blue' : 'text-text-secondary'}`}>{period.wind}</div>
-                                <div className="text-text-secondary font-semibold">{period.condition}</div>
+                                <div className="text-text-secondary dark:text-dark-text-secondary font-semibold">{period.rain}</div>
+                                <div className={`font-semibold ${windSpeed >= 20 ? 'text-text-blue dark:text-dark-text-blue' : 'text-text-secondary dark:text-dark-text-secondary'}`}>{period.wind}</div>
+                                <div className="text-text-secondary dark:text-dark-text-secondary font-semibold">{period.condition}</div>
                               </div>
                             </div>
                           );
                         })}
                       </div>
-                      <div className="p-2.5 bg-snow-blue rounded-2xl">
+                      <div className="p-2.5 rounded-2xl" style={{backgroundColor: 'var(--snow-blue-bg)'}}>
                         <div className="text-sm">
-                          <div className="text-text-primary font-bold">Freezing Elevation: {day.freezingLevel}</div>
-                          <div className={`${day.snowCondition.isRainbow ? 'rainbow-text' : 'text-text-blue'} font-semibold mt-0.5`}>{day.snowCondition.text}</div>
+                          <div className="text-text-primary dark:text-dark-text-primary font-bold">Freezing Elevation: {day.freezingLevel}</div>
+                          <div className={`${day.snowCondition.isRainbow ? 'rainbow-text' : 'text-text-blue dark:text-dark-text-blue'} font-semibold mt-0.5`}>{day.snowCondition.text}</div>
                         </div>
                       </div>
                     </div>
