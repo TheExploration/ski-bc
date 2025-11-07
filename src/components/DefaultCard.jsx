@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { webcamUrls } from '../utils/constants.js';
+import { calculateSnowTotals } from '../utils/weather.js';
 
 function formatWeatherText(periods) {
   if (!periods || periods.length === 0) return 'No data';
@@ -69,6 +70,7 @@ export function DefaultCard({ resort }) {
   const [seymourClicks, setSeymourClicks] = useState(0);
 
   const webcamUrl = webcamUrls[resort.name];
+  const totals = calculateSnowTotals(resort);
 
   const handleSeymourClick = (event) => {
     if (resort.name === "Mount Seymour") {
@@ -99,7 +101,7 @@ export function DefaultCard({ resort }) {
       <div className="mb-3 flex justify-between items-center">
         <div>
           <h2 className="text-xl font-semibold text-text-primary dark:text-dark-text-primary tracking-tight">{resort.name}</h2>
-          <p className="text-xs text-text-secondary dark:text-dark-text-secondary">{resort.elevation}</p>
+          <p className="text-xs text-text-blue dark:text-dark-text-blue">{resort.elevation}</p>
         </div>
         {webcamUrl && (
           <a 
@@ -170,6 +172,15 @@ export function DefaultCard({ resort }) {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </div>
+      <div className="mt-2">
+        <div className="flex justify-center">
+          <div className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">
+            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              Totals: Next 3 Days: {totals.next3Days}cm | Next 7 Days: {totals.next7Days}cm
+            </span>
           </div>
         </div>
       </div>

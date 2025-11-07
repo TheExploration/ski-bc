@@ -3,6 +3,7 @@ import { Header } from './components/Header.jsx';
 import { ControlPanel } from './components/ControlPanel.jsx';
 import { ResortCard } from './components/ResortCard.jsx';
 import { DefaultCard } from './components/DefaultCard.jsx';
+import { ThemeToggle } from './components/ThemeToggle.jsx';
 import { useWeatherData } from './hooks/useWeatherData.js';
 import { useLocalStorage } from './hooks/useLocalStorage.js';
 import { useResortFiltering } from './hooks/useResortFiltering.js';
@@ -181,6 +182,11 @@ function App() {
 
   return (
     <div className="min-h-screen p-8 bg-white dark:bg-dark-bg transition-colors duration-300">
+      {/* Floating Action Button - Theme Toggle */}
+      <div className="fixed bottom-6 right-6 z-50 md:bottom-8 md:right-8">
+        <ThemeToggle />
+      </div>
+      
       <Header />
       
       <div className="max-w-7xl mx-auto">

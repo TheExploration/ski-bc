@@ -63,13 +63,6 @@ export function ResortCard({ resort }) {
           <h2 className="text-2xl font-bold text-text-primary dark:text-dark-text-primary">{resort.name}</h2>
           <p className="text-sm font-medium text-text-blue dark:text-dark-text-blue">Base Elevation: {resort.elevation}</p>
         </div>
-        <div className="flex-1 flex justify-center">
-          <div className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">
-            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-              Totals: Next 3 Days: {totals.next3Days}cm | Next 7 Days: {totals.next7Days}cm
-            </span>
-          </div>
-        </div>
         <div className="text-xs font-medium text-text-secondary dark:text-dark-text-secondary">
           Last updated: {new Date().toLocaleTimeString()}
         </div>
@@ -181,6 +174,15 @@ export function ResortCard({ resort }) {
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+      <div className="mt-2">
+        <div className="flex justify-center">
+          <div className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">
+            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              Totals: Next 3 Days: {totals.next3Days}cm | Next 7 Days: {totals.next7Days}cm
+            </span>
+          </div>
         </div>
       </div>
     </div>

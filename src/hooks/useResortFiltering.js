@@ -58,6 +58,18 @@ export function useResortFiltering(skiResorts, allWeatherData) {
       return maxTemp === -Infinity ? 0 : maxTemp;
     };
 
+    const getAvgTempMultipleDays = (days, numDays) => {
+      const selectedDays = days.slice(0, Math.min(numDays, days.length));
+      if (selectedDays.length === 0) return 0;
+      
+      let totalMaxTemp = 0;
+      selectedDays.forEach(day => {
+        const dayMaxTemp = getMaxTemp(day);
+        totalMaxTemp += (dayMaxTemp === -Infinity ? 0 : dayMaxTemp);
+      });
+      return totalMaxTemp / selectedDays.length;
+    };
+
     const getTotalSnowMultipleDays = (days, numDays) => {
       const selectedDays = days.slice(0, Math.min(numDays, days.length));
       return selectedDays.reduce((total, day) => {
@@ -65,14 +77,12 @@ export function useResortFiltering(skiResorts, allWeatherData) {
       }, 0);
     };
 
-    const getAvgWindMultipleDays = (days, numDays) => {
+    const getSumWindMultipleDays = (days, numDays) => {
       const selectedDays = days.slice(0, Math.min(numDays, days.length));
-      if (selectedDays.length === 0) return 0;
       
-      const totalWind = selectedDays.reduce((total, day) => {
+      return selectedDays.reduce((total, day) => {
         return total + getPMWind(day);
       }, 0);
-      return totalWind / selectedDays.length;
     };
     
     let sortedResorts = [...resorts].sort((a, b) => {
@@ -87,11 +97,11 @@ export function useResortFiltering(skiResorts, allWeatherData) {
         
         switch (sortBy) {
           case 'temperature':
-            return getMaxTempMultipleDays(resortDataA.days, numDays) - getMaxTempMultipleDays(resortDataB.days, numDays);
+            return getAvgTempMultipleDays(resortDataA.days, numDays) - getAvgTempMultipleDays(resortDataB.days, numDays);
           case 'snowfall':
             return getTotalSnowMultipleDays(resortDataB.days, numDays) - getTotalSnowMultipleDays(resortDataA.days, numDays);
           case 'wind':
-            return getAvgWindMultipleDays(resortDataB.days, numDays) - getAvgWindMultipleDays(resortDataA.days, numDays);
+            return getSumWindMultipleDays(resortDataB.days, numDays) - getSumWindMultipleDays(resortDataA.days, numDays);
           default:
             return 0;
         }

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { ThemeToggle } from './ThemeToggle.jsx';
 
 export function Header() {
   useEffect(() => {
@@ -33,11 +32,6 @@ export function Header() {
 
   return (
     <header className="text-center mb-12 relative">
-      {/* Theme Toggle - positioned to the left of GitHub icon */}
-      <div className="fixed top-5 right-32 z-50">
-        <ThemeToggle />
-      </div>
-      
       <h1 className="text-4xl font-bold mb-2 apple-rainbow-text">Snow Forecast BC</h1>
       <p className="text-gray-600 dark:text-dark-text-secondary font-semibold transition-colors duration-300">
         The best forecast website for BC ski/board!
