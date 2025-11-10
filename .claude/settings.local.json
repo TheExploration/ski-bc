@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sessions/bin/sessions.bat config phrases list:*)",
+      "Bash(sessions/bin/sessions.bat:*)",
+      "Bash(cp:*)",
+      "Bash(nul)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(del nul 2)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

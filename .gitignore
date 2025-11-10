@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# cc-sessions runtime files
+sessions/sessions-state.json
+sessions/package.json
+sessions/transcripts/
+sessions/.archived/
