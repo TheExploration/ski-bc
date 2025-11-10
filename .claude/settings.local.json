@@ -7,7 +7,9 @@
       "Bash(nul)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(del nul 2)"
+      "Bash(del nul 2)",
+      "Bash(git checkout:*)",
+      "Bash(if not exist sessionstasksdone mkdir sessionstasksdone)"
     ],
     "deny": [],
     "ask": []

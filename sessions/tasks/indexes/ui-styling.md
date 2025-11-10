@@ -13,10 +13,9 @@ description: Tasks related to user interface improvements, visual styling, CSS/T
 ### Medium Priority
 
 ### Low Priority
-- `l-fix-totals-label-color.md` - Fix "Totals:" label to display in black while keeping values in blue
 
 ### Investigate
 
 ## Completed Tasks
 <!-- Move tasks here when completed, maintaining the format -->
-- `h-completed-task.md` - Brief description of what was accomplished
+- `l-fix-totals-label-color.md` - Fixed "Totals:" label to display in black (primary text color) while keeping values in blue across DefaultCard.jsx and ResortCard.jsx components

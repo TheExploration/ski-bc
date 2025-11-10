@@ -1,7 +1,7 @@
 ---
 name: l-fix-totals-label-color
 branch: fix/l-fix-totals-label-color
-status: pending
+status: completed
 created: 2025-11-09
 ---
 
@@ -11,9 +11,9 @@ created: 2025-11-09
 Currently in the UI, the text "Totals: Next 3 Days: 0cm | Next 7 Days: 0cm" displays with the word "Totals:" in blue. We need to change the color of just the "Totals:" label to black while keeping the actual totals values in blue.
 
 ## Success Criteria
-- [ ] The word "Totals:" displays in black color instead of blue
-- [ ] The actual totals values ("Next 3 Days: 0cm | Next 7 Days: 0cm") remain in blue
-- [ ] The styling change is applied consistently across all views where this text appears
+- [x] The word "Totals:" displays in black color instead of blue
+- [x] The actual totals values ("Next 3 Days: 0cm | Next 7 Days: 0cm") remain in blue
+- [x] The styling change is applied consistently across all views where this text appears
 
 ## Context Manifest
 <!-- Added by context-gathering agent -->
@@ -176,5 +176,18 @@ The app uses class-based dark mode (not media query). Dark mode is toggled via T
 <!-- Any specific notes or requirements from the developer -->
 
 ## Work Log
-<!-- Updated as work progresses -->
-- [YYYY-MM-DD] Started task, initial research
+
+### 2025-11-09
+
+#### Completed
+- Split single span containing "Totals:" and values into nested spans with different color classes
+- Updated DefaultCard.jsx (lines 181-184): "Totals:" label now uses `text-text-primary dark:text-dark-text-primary` (black/white based on mode)
+- Updated ResortCard.jsx (lines 182-185): Applied identical change for consistency across both card views
+- Values ("Next 3 Days: Xcm | Next 7 Days: Xcm") remain in blue using `text-blue-600 dark:text-blue-400`
+- Verified implementation is consistent across both components and supports light/dark modes
+
+#### Implementation Details
+- Solution: Wrapped content in outer span with base styling, nested two inner spans with different color classes
+- "Totals:" span: Uses primary text color (adapts to theme)
+- Values span: Maintains blue color in both light and dark modes
+- Both files modified identically to ensure consistent user experience

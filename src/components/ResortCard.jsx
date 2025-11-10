@@ -179,8 +179,9 @@ export function ResortCard({ resort }) {
       <div className="mt-2">
         <div className="flex justify-center">
           <div className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">
-            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-              Totals: Next 3 Days: {totals.next3Days}cm | Next 7 Days: {totals.next7Days}cm
+            <span className="text-sm font-medium">
+              <span className="text-text-primary dark:text-dark-text-primary">Totals:</span>
+              <span className="text-blue-600 dark:text-blue-400"> Next 3 Days: {totals.next3Days}cm | Next 7 Days: {totals.next7Days}cm</span>
             </span>
           </div>
         </div>
