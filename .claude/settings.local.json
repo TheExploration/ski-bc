@@ -10,7 +10,8 @@
       "Bash(del nul 2)",
       "Bash(git checkout:*)",
       "Bash(if not exist sessionstasksdone mkdir sessionstasksdone)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

@@ -7,18 +7,14 @@ export function useTheme() {
   // Initialize theme on mount
   useEffect(() => {
     try {
-      // Check localStorage first
+      // Check localStorage for saved theme preference
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'dark' || savedTheme === 'light') {
         setTheme(savedTheme);
-      } else {
-        // Check system preference
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          setTheme('dark');
-        }
       }
+      // If no saved preference, use default 'light' theme
     } catch (error) {
-      console.warn('Error accessing localStorage or matchMedia:', error);
+      console.warn('Error accessing localStorage:', error);
     }
     setIsInitialized(true);
   }, []);
